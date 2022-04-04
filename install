@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Run as sudo only
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    echo "Please, run as root"
+    exit
+fi
+
+ORIGIN=$PWD
+
+# Installing OpenVPN
+apt-get install openvpn
+cd /etc/openvpn || exit
+wget https://downloads.nordcdn.com/configs/archives/servers/ovpn.zip
+apt-get install ca-certificates
+apt-get install unzip
+unzip ovpn.zip
+rm ovpn.zip
+echo
+
+# Configure auth
+cd $ORIGIN || exit
+echo 'Go to: https://my.nordaccount.com/en/dashboard/nordvpn/ to take your Username and Password'
+echo 'Username: '
+read USERNAME 
+echo $USERNAME > pass.txt
+echo 'Password: '
+read PASSWORD  
+echo $PASSWORD >> pass.txt
+
+# Move all to /usr/bin
+mv vpn /usr/bin
+mv pass.txt /usr/bin
+mv recommended.py /usr/bin

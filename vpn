@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+RECOMMENDED=$(python3 recommended.py)
+sudo openvpn --config /etc/openvpn/ovpn_tcp/${RECOMMENDED}.tcp.ovpn --auth-user-pass pass.txt &
