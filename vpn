@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
 RECOMMENDED=$(python3 /usr/bin/recommended.py)
-sudo openvpn --config /etc/openvpn/ovpn_tcp/${RECOMMENDED}.tcp.ovpn --auth-user-pass /usr/bin/pass.txt &
-notify-send --app-name=nordvpn --icon=nordvpn "Connected to VPN at ${RECOMMENDED} with PID: $!"
+sudo openvpn --config /etc/openvpn/ovpn_tcp/${RECOMMENDED}.tcp.ovpn --auth-user-pass /usr/bin/pass.txt --daemon && notify-send --app-name=nordvpn --icon=nordvpn "Connected to VPN at ${RECOMMENDED}" || notify-send --app-name=nordvpn --icon=error "Whoops! Connection failed. Please try again."
+
+
