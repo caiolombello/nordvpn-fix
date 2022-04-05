@@ -8,17 +8,27 @@ fi
 
 ORIGIN=$PWD
 
-# Installing OpenVPN
-apt-get install openvpn
+echo "Installing OpenVPN..."
+apt-get install openvpn -y
 cd /etc/openvpn || exit
 wget https://downloads.nordcdn.com/configs/archives/servers/ovpn.zip
-apt-get install ca-certificates
-apt-get install unzip
+apt-get install ca-certificates -y
+apt-get install unzip -y
 unzip ovpn.zip
 rm ovpn.zip
 echo
 
-# Configure auth
+echo "Installing Python3 and dependencies..."
+apt-get install python3 -y
+apt-get install yad -y
+apt-get install pip
+pip install urllib3
+pip install helium
+pip install selenium
+pip install BeautifulSoup4
+echo
+
+echo "Configuring auth.."
 cd $ORIGIN || exit
 echo 'Go to: https://my.nordaccount.com/en/dashboard/nordvpn/ to take your Username and Password'
 echo 'Username: '
@@ -27,8 +37,9 @@ echo $USERNAME > pass.txt
 echo 'Password: '
 read PASSWORD  
 echo $PASSWORD >> pass.txt
+echo
 
-# Move all to /usr/bin
+echo "Moving all to /usr/bin ..."
 mv vpn /usr/bin
 mv pass.txt /usr/bin
 mv recommended.py /usr/bin
