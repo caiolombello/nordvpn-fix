@@ -1,10 +1,36 @@
 #!/usr/bin/env bash
 
-RECOMMENDED=$(python3 /usr/bin/recommended.py)
-if sudo openvpn --config /etc/openvpn/ovpn_tcp/${RECOMMENDED}.tcp.ovpn --auth-user-pass /usr/bin/pass.txt --daemon ; then
-  notify-send --app-name=nordvpn --icon=nordvpn "Connected to VPN at ${RECOMMENDED}"
-  yad --notification --command "sudo killall openvpn && sudo killall yad" --image=nordvpn & 
-else 
-  notify-send --app-name=nordvpn --icon=error "Whoops! Connection failed. Please try again."
-fi
- 
+recommended_server () {
+  RECOMMENDED=$(python3 /usr/bin/recommended.py)
+}
+export -f recommended_server
+
+connect () {
+  if bash -c "pgrep openvpn" ; then
+    notify-send --app-name=nordvpn --icon=nordvpn "Already connected"
+  elif recommended_server && sudo openvpn --config /etc/openvpn/ovpn_tcp/${RECOMMENDED}.tcp.ovpn --auth-user-pass /usr/bin/pass.txt --daemon ; then
+    notify-send --app-name=nordvpn --icon=nordvpn "Connected to VPN at ${RECOMMENDED}"
+    while [ $(bash -c "pgrep openvpn") ] ; do
+      if ! [ $(bash -c "pgrep openvpn") ] ; then
+        notify-send --app-name=nordvpn --icon=nordvpn "VPN disconnected"
+      fi
+    done
+  else
+    notify-send --app-name=nordvpn --icon=error "Whoops! Connection failed. Please try again."
+  fi
+} 
+export -f connect
+
+disconnect () {
+  bash -c "sudo killall openvpn &"
+}
+export -f disconnect
+
+fquit () {
+  bash -c "sudo killall openvpn &" 
+  bash -c "sudo killall yad &"
+} 
+export -f fquit
+
+yad --notification --listen --title="NordVPN" --menu='Connect!bash -c connect|Disconnect!bash -c disconnect|Exit!bash -c fquit' --text="NordVPN" --image=nordvpn & 
+connect
